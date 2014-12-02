@@ -5,7 +5,7 @@ import java.util.NoSuchElementException
 import scala.annotation.tailrec
 
 /**
- * Created by dmohan200 on 11/20/14.
+ * Created by dmohan200 on 11/20/14 12:18 AM.
  */
 sealed trait List[+A]
 
@@ -266,11 +266,6 @@ object List {
     foldLeft(as, Nil: List[A])((z, a) =>  if(f(a)) Cons(a, z) else z)
   }
 
-  /*def filter2[A](as: List[A])(f: A => Boolean): List[A] = as match {
-    case Nil => Nil
-    case Cons(h, t) if f(h) => Cons(h, filter2(t)(f))
-    case Cons(h, t) =>
-  }*/
 
   def flatMap[A, B](as: List[A])(f: A => List[B]): List[B] = {
     concatenate(map(as)(f))
@@ -283,15 +278,26 @@ object List {
   }
 
   def hasSubsequence[A](sup: List[A], sub: List[A]): Boolean = {
-    ???
+    def go(parent: List[A], child: List[A]): Boolean = (parent, child) match {
+      case (Nil, _) => false
+      case (_, Nil) => true
+      case (Cons(h1, t1), Cons(h2, t2)) =>
+        if(h1 == h2) {
+          go(t1, t2)
+        } else {
+          go(t1, sub)
+        }
+    }
+    go(sup, sub)
   }
 
-  def take[A](n: Int): List[A] = {
-    ???
+  def take[A](as:List[A], n: Int): List[A] = {
+    def go(as: List[A], i: Int, z: List[A]): List[A] = as match {
+      case Nil => z
+      case Cons(h, t) => if(i <= n) go(t, i+1, Cons(h, z)) else z
+    }
+    reverse(go(as, 1, Nil:List[A]))
   }
-
-  scala.List
-
 
   /**
    * Constucts the singly linked list

@@ -3,7 +3,7 @@ package datastructures
 import org.scalatest.{BeforeAndAfter, FunSuite}
 
 /**
- * Created by dmohan200 on 11/28/14.
+ * Created by dmohan200 on 11/28/14 12:16 AM.
  */
 class ListTest extends FunSuite with BeforeAndAfter {
 
@@ -15,11 +15,11 @@ class ListTest extends FunSuite with BeforeAndAfter {
   }
 
   test("sum") {
-    assert(10 == sum(List(1,2,3,4), 0, (a: Int, b: Int) => (a + b)))
+    assert(10 == sum(List(1,2,3,4), 0, (a: Int, b: Int) => a + b))
   }
 
   test("product") {
-    assert(24 == product(List(1,2,3,4), 1, (a: Int, b: Int) => (a * b)))
+    assert(24 == product(List(1,2,3,4), 1, (a: Int, b: Int) => a * b))
   }
 
   test("length") {
@@ -105,7 +105,13 @@ class ListTest extends FunSuite with BeforeAndAfter {
   test("max") {
     assert(11 == max(List(1,11,2,4,3,4), 0)(_ > _))
   }
-  /*test("take n") {
+
+  test("take n") {
     assert(List(1,2,3,4) == take(List(1,2,3,4,5,6,7,8,9,0), 4))
-  }*/
+  }
+
+  test("EXERCISE 3.24: hasSubsequence") {
+    assert(hasSubsequence(List(1,2,3,4,5,6,7,8), List(4,5,6)))
+    assert(!hasSubsequence(List(1,2,3,4,5,6,7,8), List(4,5,7)))
+  }
 }
