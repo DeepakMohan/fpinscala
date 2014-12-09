@@ -67,7 +67,5 @@ object Tree {
     val depths = List.map(List.filter(res)(a => a._2))(a => a._1)
 
     List.max(depths, 0)(_ > _)
-
-    //sort depths to find nth max depth
   }
 }

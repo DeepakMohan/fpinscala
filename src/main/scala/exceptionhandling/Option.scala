@@ -47,10 +47,14 @@ object Option {
    * @param as
    * @return
    */
-  def variance(as: Seq[Double]): Option[Double] = {
+  def variance1(as: Seq[Double]): Option[Double] = {
     mean(as) map {m =>
       mean(as.map(x => Math.pow(x-m, 2))).getOrElse(0D)
     }
+  }
+
+  def variance(as: Seq[Double]): Option[Double] = {
+    mean(as).flatMap(m => mean(as.map(x => Math.pow(x-m, 2))))
   }
 
   def lift[A,B](f: A => B): Option[A] => Option[B] = _ map f
@@ -154,12 +158,17 @@ object Option {
    * @tparam A
    * @return
    */
-  def sequence[A](opts: List[Option[A]]): Option[List[A]] = {
+  def sequence3[A](opts: List[Option[A]]): Option[List[A]] = {
     def go(ops: List[Option[A]], z: Option[List[A]]): Option[List[A]] = ops match {
       case Nil => z
       case x :: xs => go(xs, map2(x, z)((xv, zv) => zv :+ xv))
     }
     go(opts, Some(List[A]()))
+  }
+
+  def sequence[A](opts: List[Option[A]]): Option[List[A]] = opts match {
+    case Nil => None
+    case opt :: optTail => opt flatMap(o => sequence(optTail) map (o :: _))
   }
 
   def Try[A](a: => A): Option[A] = {
