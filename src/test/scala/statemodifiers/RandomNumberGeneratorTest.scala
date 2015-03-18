@@ -103,5 +103,8 @@ class RandomNumberGeneratorTest extends FunSuite {
     assert(i2 < 100)
   }
 
+  test("Imperative") {
+
+  }
 
 }

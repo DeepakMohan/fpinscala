@@ -12,7 +12,7 @@ case class SimpleRNG(seed: Long) extends RandomNumberGenerator {
   override def nextInt: (Int, RandomNumberGenerator) = {
     val newSeed = (seed * 0x5DEECE66DL + 0xBL) & 0xFFFFFFFFFFFFL
     val nextRNG = SimpleRNG(newSeed)
-    val n = (seed >>> 16).toInt
+    val n = (newSeed >>> 16).toInt
     (n, nextRNG)
   }
 }
@@ -98,8 +98,20 @@ object SimpleRNG {
     sequence(rngs)(rng)
   }
 
-  //type alias
+  /**
+   * type alias for function which takes an action(random number generator) and
+   * returns a random number and next state
+   */
   type RNG[+A] = RandomNumberGenerator => (A, RandomNumberGenerator)
+
+  //more generic type alias for a state action
+  //type State[S, +A] = S => (A, S)
+  case class State[S,+A](run: S => (A,S))
+
+  /**
+   * type alias specific to random number generator
+   */
+  type Rand[A] = State[RNG[A], A]
 
   def unit[A](a: A): RNG[A] = {
     rng => (a, rng)
@@ -111,6 +123,11 @@ object SimpleRNG {
       (f(a), rngA2)
     }
 
+  def map_1[A, B](ra: RNG[A])(f: A => B): RNG[B] = {
+    flatMap(ra) {
+      a => unit(f(a))
+    }
+  }
   /**
    * Write the implementation of map2 based on the following signature. This function
    * takes two actions, ra and rb, and a function f for combining their results, and returns
@@ -129,6 +146,16 @@ object SimpleRNG {
       val (b, rngB) = rb(rngA2)
       (f(a, b), rngB)
     }
+  }
+
+//  def map2_1[A, B, C](ra: RNG[A], rb: RNG[B])(f: (A, B) => C): RNG[C] = {
+//
+//  }
+
+  def flatMap[A, B](f: RNG[A])(g: A => RNG[B]): RNG[B] = {
+    rng =>
+      val (a, r) = f(rng)
+      g(a)(r)
   }
 
   /**
@@ -166,12 +193,6 @@ object SimpleRNG {
       }
   }
 
-  def flatMap[A, B](f: RNG[A])(g: A => RNG[B]): RNG[B] = {
-    rng =>
-      val (a, r) = f(rng)
-      g(a)(r)
-  }
-
   def nonNegativeIntLessThan(n: Int): RNG[Int] = {
     flatMap(nonNegativeInt) {
       i =>
@@ -182,7 +203,7 @@ object SimpleRNG {
   }
 
 
-  def nonNegativeEvenInt: RNG[Int] = map(nonNegativeInt)(n => n - n % 2)
+  def nonNegativeEvenInt: RNG[Int] = map_1(nonNegativeInt)(n => n - n % 2)
 
   def double_1: RNG[Double] = map(nonNegativeInt)(n => n + (n / (Integer.MAX_VALUE.toDouble + 1)))
 
